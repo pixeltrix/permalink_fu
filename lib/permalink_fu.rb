@@ -89,6 +89,19 @@ module PermalinkFu
         alias_method :define_attribute_methods_without_permalinks, :define_attribute_methods
         alias_method :define_attribute_methods, :define_attribute_methods_with_permalinks
       end
+
+      if base.permalink_field.to_sym != :permalink
+        base.alias_attribute :permalink, base.permalink_field
+        class << base
+          def find_by_permalink(permalink, options = {})
+            send "find_by_#{permalink_field}", permalink, options
+          end
+
+          def find_by_permalink!(permalink, options = {})
+            send "find_by_#{permalink_field}!", permalink, options
+          end
+        end
+      end
     end
 
     def define_attribute_methods_with_permalinks
