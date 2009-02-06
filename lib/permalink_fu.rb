@@ -88,6 +88,7 @@ module PermalinkFu
       class << base
         alias_method :define_attribute_methods_without_permalinks, :define_attribute_methods
         alias_method :define_attribute_methods, :define_attribute_methods_with_permalinks
+        alias_method_chain :find, :permalink
       end
 
       if base.permalink_field.to_sym != :permalink
@@ -109,6 +110,14 @@ module PermalinkFu
         evaluate_attribute_method permalink_field, "def #{self.permalink_field}=(new_value);write_attribute(:#{self.permalink_field}, new_value ? PermalinkFu.escape(new_value) : nil);end", "#{self.permalink_field}="
       end
       value
+    end
+
+    def find_with_permalink(id, options = {})
+      if permalink_field.nil? || id.is_a?(Symbol) || id.to_s =~ /\A\d+\Z/
+        find_without_permalink(id, options)
+      else
+        find_by_permalink!(id, options)
+      end
     end
   end
 
