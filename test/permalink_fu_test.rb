@@ -218,7 +218,10 @@ class PermalinkFuTest < Test::Unit::TestCase
     '////// meph1sto r0x ! \\\\\\'.freeze => 'meph1sto-r0x'.freeze,
     'āčēģīķļņū'.freeze => 'acegiklnu'.freeze,
     '中文測試 chinese text'.freeze => 'chinese-text'.freeze,
-    'fööbär'.freeze => 'foobar'.freeze
+    'fööbär'.freeze => 'foobar'.freeze,
+    'Terms & Conditions'.freeze => 'terms-and-conditions'.freeze,
+    'T&Cs'.freeze => 't-and-cs'.freeze,
+    'This is a pointer &variable'.freeze => 'this-is-a-pointer-variable'
   }
 
   @@extra = { 'some-)()()-ExtRa!/// .data==?>    to \/\/test'.freeze => 'some-extra-data-to-test'.freeze }
