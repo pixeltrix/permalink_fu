@@ -3,6 +3,7 @@ require File.join(File.dirname(__FILE__), '../lib/permalink_fu')
 
 begin
   require 'rubygems'
+  require 'mocha'
   require 'ruby-debug'
   Debugger.start
 rescue LoadError
@@ -441,5 +442,27 @@ class PermalinkFuTest < Test::Unit::TestCase
       @m.title = from; @m.permalink = nil
       assert_equal to, @m.validate
     end
+  end
+
+  def test_should_not_find_by_permalink_if_integer
+    MockModel.expects(:find_by_permalink!).never
+    MockModel.find(1)
+  end
+
+  def test_should_not_find_by_permalink_if_numeric_string
+    MockModel.expects(:find_by_permalink!).never
+    MockModel.find('1')
+  end
+
+  def test_should_not_find_by_permalink_if_symbol
+    MockModel.expects(:find_by_permalink!).never
+    MockModel.find(:all)
+    MockModel.find(:first)
+    MockModel.find(:last)
+  end
+
+  def test_should_find_by_permalink_if_not_numeric_string
+    MockModel.expects(:find_by_permalink!).once
+    MockModel.find('permalink')
   end
 end
