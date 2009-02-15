@@ -10,7 +10,9 @@ rescue LoadError
 end
 
 gem 'activesupport'
+require 'active_support/core_ext/array'
 require 'active_support/core_ext/blank'
+require 'active_support/core_ext/module'
 
 class FauxColumn < Struct.new(:limit)
 end
@@ -78,6 +80,9 @@ class BaseModel
 
   def self.before_validation(method)
     self.validation = method
+  end
+
+  def self.find(*args)
   end
 
   def validate
@@ -187,6 +192,20 @@ end
 
 class MockModelExtra < BaseModel
   has_permalink [:title, :extra]
+end
+
+class DifferentColumnModel < BaseModel
+  attr_reader :slug
+  has_permalink :title, :slug
+
+  def self.columns_hash
+    @columns_hash ||= {'slug' => FauxColumn.new(100)}
+  end
+
+  def validate_slug
+    send self.class.validation if self.class.validation
+    slug
+  end
 end
 
 # trying to be like ActiveRecord, define the attribute methods manually
@@ -406,5 +425,21 @@ class PermalinkFuTest < Test::Unit::TestCase
     s2.foo = nil
     s2.validate
     assert_equal 'ack-2', s2.permalink
+  end
+
+  def test_should_escape_activerecord_model_using_different_column
+    @m = DifferentColumnModel.new
+    @@samples.each do |from, to|
+      @m.title = from; @m.slug = nil
+      assert_equal to, @m.validate_slug
+    end
+  end
+
+  def test_should_escape_activerecord_model_using_aliased_different_column
+    @m = DifferentColumnModel.new
+    @@samples.each do |from, to|
+      @m.title = from; @m.permalink = nil
+      assert_equal to, @m.validate
+    end
   end
 end
